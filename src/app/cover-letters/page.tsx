@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useCoverLetters, type CoverLetter } from "@/hooks/useCoverLetters";
 import { CoverLetterGate } from "@/components/cover-letters/CoverLetterGate";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 export default function CoverLettersPage() {
   const {
@@ -184,7 +185,8 @@ export default function CoverLettersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="min-h-screen font-sans relative">
+      <GradientBackground />
       <DashboardNavbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

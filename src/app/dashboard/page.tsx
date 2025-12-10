@@ -11,6 +11,7 @@ import type { ResumeAnalysis, Suggestion, Skill, Experience } from "@/lib/ai/res
 import type { OptimizationResult } from "@/lib/ai/resume-optimizer";
 import { ResumeComparisonTabs } from "@/components/resume/ResumeComparisonTabs";
 import type { Job } from "@/types/job";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 interface ParsedData {
   skills: Skill[];
@@ -275,7 +276,8 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="h-screen bg-slate-50 dark:bg-slate-950 font-sans flex flex-col overflow-hidden">
+        <div className="h-screen font-sans flex flex-col overflow-hidden relative">
+            <GradientBackground />
             <DashboardNavbar />
 
             {/* Main Content */}

@@ -32,6 +32,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 // Types
 interface Resume {
@@ -334,7 +335,8 @@ export default function ResumesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="min-h-screen font-sans relative">
+      <GradientBackground />
       <DashboardNavbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

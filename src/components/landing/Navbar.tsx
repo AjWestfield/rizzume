@@ -84,11 +84,11 @@ export function Navbar() {
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <Link href="/sign-in" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                    <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900">
                         Log in
                     </Link>
 
-                    <Link href="/sign-up">
+                    <Link href="/signup">
                         <Button className="bg-[#6366f1] hover:bg-[#5558e6] text-white rounded-full px-6 font-medium shadow-lg shadow-indigo-200">
                             Start now for free
                         </Button>
@@ -109,10 +109,10 @@ export function Navbar() {
                                     <Link href="#" className="text-lg font-medium" onClick={() => setIsOpen(false)}>
                                         AI Tools
                                     </Link>
-                                    <Link href="/sign-in" className="text-lg font-medium" onClick={() => setIsOpen(false)}>
+                                    <Link href="/login" className="text-lg font-medium" onClick={() => setIsOpen(false)}>
                                         Log in
                                     </Link>
-                                    <Link href="/sign-up" onClick={() => setIsOpen(false)}>
+                                    <Link href="/signup" onClick={() => setIsOpen(false)}>
                                         <Button className="w-full bg-[#6366f1] hover:bg-[#5558e6] text-white rounded-full">
                                             Start now for free
                                         </Button>

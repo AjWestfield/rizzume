@@ -10,6 +10,7 @@ import { useAutoApply } from "@/hooks/useAutoApply";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import { useAutoApplyTrigger } from "@/hooks/useAutoApplyTrigger";
 import type { AutoApplyProfile } from "@/types/user-profile";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 type JobStatus = "discovered" | "pending" | "approved" | "rejected" | "applying" | "applied" | "failed";
 
@@ -307,7 +308,8 @@ export default function AutoApplyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="min-h-screen font-sans relative">
+      <GradientBackground />
       <DashboardNavbar />
 
       <main className="max-w-[1600px] mx-auto p-4 md:p-6 lg:p-8">

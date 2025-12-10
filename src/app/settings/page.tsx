@@ -8,13 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Settings, User, Mail, Bell, Shield, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 export default function SettingsPage() {
   const { user, isLoaded } = useUser();
 
   if (!isLoaded) {
     return (
-      <div className="h-screen bg-slate-50 dark:bg-slate-950 font-sans flex flex-col">
+      <div className="h-screen font-sans flex flex-col relative">
+        <GradientBackground />
         <DashboardNavbar />
         <main className="flex-1 flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
@@ -24,7 +26,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="h-screen bg-slate-50 dark:bg-slate-950 font-sans flex flex-col overflow-hidden">
+    <div className="h-screen font-sans flex flex-col overflow-hidden relative">
+      <GradientBackground />
       <DashboardNavbar />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 overflow-y-auto">

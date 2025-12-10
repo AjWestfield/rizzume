@@ -10,10 +10,12 @@ import {
     AutoApplyFeatureGrid,
     AutoApplyCTA
 } from "@/components/landing";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 export default function AutoApplyMarketingPage() {
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen relative">
+            <GradientBackground />
             <Navbar />
             <main>
                 <AutoApplyHero />

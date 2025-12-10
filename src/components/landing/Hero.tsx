@@ -4,17 +4,16 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Star, FileText, Send, User } from "lucide-react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 
 export function Hero() {
     return (
         <section className="relative overflow-hidden pt-32 pb-20 lg:pt-48 lg:pb-32">
             {/* Background Gradients */}
-            <div className="absolute inset-0 -z-10 bg-[#FDF4F8]">
-                <div className="absolute top-0 inset-x-0 h-[600px] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-200/40 via-pink-100/30 to-transparent blur-3xl" />
-                <div className="absolute top-1/4 -left-64 w-96 h-96 bg-purple-300/30 rounded-full blur-[128px]" />
-                <div className="absolute top-1/3 -right-64 w-96 h-96 bg-pink-300/30 rounded-full blur-[128px]" />
+            <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[#F5E6F0] via-[#FCE8EF] to-[#FDF2F8]">
+                <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-purple-300/40 rounded-full blur-[120px]" />
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-pink-300/50 rounded-full blur-[100px]" />
+                <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-pink-200/40 rounded-full blur-[80px]" />
             </div>
 
             <div className="container relative z-10">
@@ -58,7 +57,7 @@ export function Hero() {
                     </motion.p>
 
                     <div className="flex flex-col items-center gap-4">
-                        <Link href="/sign-up">
+                        <Link href="/signup">
                             <Button className="bg-[#6366f1] hover:bg-[#5558e6] text-white rounded-full px-8 py-6 text-lg font-medium shadow-xl shadow-indigo-200 transition-transform hover:scale-105">
                                 Start now for free <ArrowRight className="ml-2 w-5 h-5" />
                             </Button>
@@ -66,24 +65,17 @@ export function Hero() {
 
                         <div className="flex items-center gap-3 mt-4">
                             <div className="flex -space-x-2">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-gray-200 overflow-hidden relative">
-                                        <Image
-                                            src={`/testimonials/${['sarah', 'michael', 'emily'][i - 1]}.png`}
-                                            alt="User"
-                                            fill
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                ))}
+                                <div className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-purple-400 to-pink-400" />
+                                <div className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-blue-400 to-cyan-400" />
+                                <div className="w-8 h-8 rounded-full border-2 border-white bg-gradient-to-br from-orange-400 to-yellow-400" />
                             </div>
                             <div className="flex items-center gap-1">
                                 <div className="flex">
                                     {[1, 2, 3, 4, 5].map((i) => (
-                                        <Star key={i} className="w-3 h-3 text-orange-400 fill-orange-400" />
+                                        <Star key={i} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
                                     ))}
                                 </div>
-                                <span className="text-xs text-gray-600 font-medium">Loved by 1,005,991 users</span>
+                                <span className="text-sm text-gray-600 font-medium">Loved by 1,005,991 users</span>
                             </div>
                         </div>
                     </div>
@@ -91,36 +83,38 @@ export function Hero() {
                     <div className="mt-20 mb-32">
                         <p className="text-sm font-medium text-gray-400 mb-8 uppercase tracking-widest">Get hired by top companies worldwide</p>
                         <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 lg:gap-16">
-                            {/* Coinbase */}
+                            {/* Coinbase - text only */}
+                            <span className="text-2xl font-medium text-gray-400 tracking-tight">coinbase</span>
+
+                            {/* Spotify - icon + text */}
                             <div className="flex items-center gap-2 text-gray-400">
-                                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 19.5a7.5 7.5 0 110-15 7.5 7.5 0 010 15z"/>
-                                </svg>
-                                <span className="text-xl font-semibold tracking-tight">coinbase</span>
-                            </div>
-                            {/* Spotify */}
-                            <div className="flex items-center gap-2 text-gray-400">
-                                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor">
+                                <svg className="h-8 w-8" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
                                 </svg>
-                                <span className="text-xl font-semibold tracking-tight">Spotify</span>
+                                <span className="text-2xl font-medium tracking-tight">Spotify</span>
                             </div>
-                            {/* Microsoft */}
+
+                            {/* Microsoft - icon + text */}
                             <div className="flex items-center gap-2 text-gray-400">
-                                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M0 0h11.377v11.377H0zm12.623 0H24v11.377H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/>
+                                <svg className="h-5 w-5" viewBox="0 0 21 21" fill="currentColor">
+                                    <rect x="0" y="0" width="10" height="10"/>
+                                    <rect x="11" y="0" width="10" height="10"/>
+                                    <rect x="0" y="11" width="10" height="10"/>
+                                    <rect x="11" y="11" width="10" height="10"/>
                                 </svg>
-                                <span className="text-xl font-semibold tracking-tight">Microsoft</span>
+                                <span className="text-2xl font-medium tracking-tight">Microsoft</span>
                             </div>
-                            {/* Meta */}
+
+                            {/* Meta - infinity icon + text */}
                             <div className="flex items-center gap-2 text-gray-400">
-                                <svg className="h-5 w-8" viewBox="0 0 36 18" fill="currentColor">
-                                    <path d="M6.5 0C3.5 0 1.4 2.2.5 4.5c-.6 1.5-.5 3 .2 4.4C2 11.4 4.7 14 8 17c.5.4 1 .7 1.6 1 .5-.3 1.1-.6 1.6-1 3.3-3 6-5.6 7.3-8.1.7-1.4.8-2.9.2-4.4C17.8 2.2 15.7 0 12.7 0c-1.5 0-2.9.6-4 1.6L8.6 1.7 8.5 1.6C7.4.6 6 0 6.5 0zm19.8 0c-1.5 0-2.9.6-4 1.6l-.1.1-.1-.1c-1.1-1-2.5-1.6-4-1.6-3 0-5.1 2.2-6 4.5-.6 1.5-.5 3 .2 4.4 1.3 2.5 4 5.1 7.3 8.1.5.4 1 .7 1.6 1 .5-.3 1.1-.6 1.6-1 3.3-3 6-5.6 7.3-8.1.7-1.4.8-2.9.2-4.4-.9-2.3-3-4.5-6-4.5z"/>
+                                <svg className="h-5 w-8" viewBox="0 0 512 256" fill="currentColor">
+                                    <path d="M128 32c-53 0-96 43-96 96s43 96 96 96c35.3 0 66.2-19.1 82.9-47.5L256 128l45.1 48.5C317.8 204.9 348.7 224 384 224c53 0 96-43 96-96s-43-96-96-96c-35.3 0-66.2 19.1-82.9 47.5L256 128l-45.1-48.5C194.2 51.1 163.3 32 128 32zm0 48c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zm256 0c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48z"/>
                                 </svg>
-                                <span className="text-xl font-semibold tracking-tight">Meta</span>
+                                <span className="text-2xl font-medium tracking-tight">Meta</span>
                             </div>
-                            {/* SpaceX */}
-                            <span className="text-xl font-bold tracking-widest text-gray-400">SPACE<span className="italic">X</span></span>
+
+                            {/* SpaceX - stylized text */}
+                            <span className="text-2xl font-bold tracking-wider text-gray-400">SPACE<span className="text-[1.4rem] relative -top-[1px]">X</span></span>
                         </div>
                     </div>
                 </div>

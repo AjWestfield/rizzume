@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { DashboardNavbar } from "@/components/dashboard/DashboardNavbar";
 import { Mail, Linkedin, ArrowRight } from "lucide-react";
+import { GradientBackground } from "@/components/ui/GradientBackground";
 
 export default function NetworkPage() {
     const contacts = [
@@ -12,7 +13,8 @@ export default function NetworkPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+        <div className="min-h-screen font-sans relative">
+            <GradientBackground />
             <DashboardNavbar />
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
