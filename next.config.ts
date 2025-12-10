@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Externalize packages that don't work with bundlers
+  serverExternalPackages: ['@browserbasehq/stagehand', 'pino', 'thread-stream'],
   images: {
     remotePatterns: [
       {

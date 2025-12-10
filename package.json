@@ -7,14 +7,14 @@
     "dev:next": "next dev",
     "dev:convex": "convex dev",
     "dev:all": "concurrently \"npm run dev:next\" \"npm run dev:convex\"",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "eslint",
     "convex:deploy": "convex deploy",
     "convex:generate": "convex codegen"
   },
   "dependencies": {
-    "@browserbasehq/stagehand": "^2.5.6",
+    "@browserbasehq/stagehand": "^3.0.5",
     "@clerk/nextjs": "^6.36.1",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-avatar": "^1.1.11",
@@ -44,14 +44,14 @@
     "svix": "^1.82.0",
     "tailwind-merge": "^3.4.0",
     "unpdf": "^1.4.0",
-    "zod": "^4.1.13"
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "dotenv": "^17.2.3",
+    "dotenv": "^16.4.5",
     "eslint": "^9",
     "eslint-config-next": "16.0.7",
     "tailwindcss": "^4",

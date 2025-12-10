@@ -2,7 +2,15 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { AutoApplyProfile, AutoApplyProgress } from "@/types/user-profile";
-import type { JobApplicationData } from "@/lib/ai/agents/auto-apply-agent";
+
+// Job data for auto-apply
+interface JobApplicationData {
+  id: string;
+  title: string;
+  company: string;
+  applyLink: string;
+  coverLetter?: string;
+}
 
 interface AutoApplyResult {
   jobId: string;

@@ -186,7 +186,7 @@ export async function DELETE(request: NextRequest) {
 
 /**
  * Calculate when the next cron job will run
- * Cron runs every 2 minutes: */2 * * * *
+ * Cron schedule: every 2 minutes
  */
 function getNextCronRun(): string {
   const now = new Date();

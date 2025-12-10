@@ -1,7 +1,7 @@
 import { Stagehand } from "@browserbasehq/stagehand";
 
 /**
- * Browserbase + Stagehand Client
+ * Browserbase + Stagehand Client (v3)
  *
  * AI-powered browser automation that works on Vercel serverless.
  * Uses natural language commands instead of brittle CSS selectors.
@@ -12,8 +12,7 @@ import { Stagehand } from "@browserbasehq/stagehand";
 export interface BrowserbaseConfig {
   apiKey?: string;
   projectId?: string;
-  modelName?: string;
-  modelApiKey?: string;
+  model?: string;
   headless?: boolean;
   timeout?: number;
 }
@@ -30,7 +29,7 @@ const DEFAULT_CONFIG: Partial<BrowserbaseConfig> = {
 };
 
 /**
- * Create a new Browserbase session with Stagehand
+ * Create a new Browserbase session with Stagehand v3
  *
  * @param config - Optional configuration overrides
  * @returns BrowserSession with initialized Stagehand instance
@@ -55,21 +54,21 @@ export async function createBrowserSession(
 
   const mergedConfig = { ...DEFAULT_CONFIG, ...config };
 
-  // Initialize Stagehand with Browserbase cloud
+  // Initialize Stagehand v3 with Browserbase cloud
+  // v3 uses unified 'model' config instead of modelName + modelClientOptions
   const stagehand = new Stagehand({
     env: "BROWSERBASE",
     apiKey,
     projectId,
-    modelName: mergedConfig.modelName || "gpt-4o",
-    modelApiKey: mergedConfig.modelApiKey || process.env.OPENAI_API_KEY,
-    enableCaching: true, // Cache AI decisions for speed
-    headless: mergedConfig.headless,
+    model: mergedConfig.model || "openai/gpt-4o", // v3 format: provider/model
+    domSettleTimeout: 5000,
   });
 
   await stagehand.init();
 
   // Generate a session ID for tracking
-  const sessionId = `bb_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+  const sessionId = stagehand.browserbaseSessionID ||
+    `bb_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
   console.log(`[Browserbase] Session created: ${sessionId}`);
 
@@ -122,6 +121,13 @@ export function isSessionNearTimeout(
 }
 
 /**
+ * Get the active page from Stagehand v3 context
+ */
+export function getPage(session: BrowserSession) {
+  return session.stagehand.context.pages()[0];
+}
+
+/**
  * Take a screenshot of the current page
  *
  * @param session - The browser session
@@ -130,7 +136,8 @@ export function isSessionNearTimeout(
 export async function takeScreenshot(
   session: BrowserSession
 ): Promise<string> {
-  const screenshot = await session.stagehand.page.screenshot({
+  const page = getPage(session);
+  const screenshot = await page.screenshot({
     type: "png",
     fullPage: false,
   });
@@ -141,7 +148,8 @@ export async function takeScreenshot(
  * Get the current page URL
  */
 export function getCurrentUrl(session: BrowserSession): string {
-  return session.stagehand.page.url();
+  const page = getPage(session);
+  return page.url();
 }
 
 /**
@@ -149,9 +157,10 @@ export function getCurrentUrl(session: BrowserSession): string {
  */
 export async function waitForNavigation(
   session: BrowserSession,
-  timeout: number = 30000
+  timeoutMs: number = 30000
 ): Promise<void> {
-  await session.stagehand.page.waitForLoadState("networkidle", { timeout });
+  const page = getPage(session);
+  await page.waitForLoadState("networkidle", timeoutMs);
 }
 
 // Export Stagehand type for use in strategies

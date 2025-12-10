@@ -45,7 +45,7 @@ interface AgentControlCenterProps {
     onApproveJob: (id: string) => void;
     onRejectJob: (id: string) => void;
     onRetryJob: (id: string) => void;
-    sessionId?: string | null; // New prop
+    userId?: string | null; // User ID for queue view
 }
 
 export function AgentControlCenter({
@@ -63,7 +63,7 @@ export function AgentControlCenter({
     onApproveJob,
     onRejectJob,
     onRetryJob,
-    sessionId
+    userId
 }: AgentControlCenterProps) {
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [activeTab, setActiveTab] = useState("queue");
@@ -235,8 +235,8 @@ export function AgentControlCenter({
 
                         <div className="flex-1 relative bg-slate-950">
                             <BrowserStreamView
+                                userId={userId as import("../../../convex/_generated/dataModel").Id<"users"> | null}
                                 isActive={isApplying || autoApplyEnabled}
-                                sessionId={sessionId || autoApplyProgress?.sessionId || null}
                             />
                         </div>
                     </div>

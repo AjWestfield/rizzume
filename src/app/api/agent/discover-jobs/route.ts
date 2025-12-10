@@ -12,9 +12,6 @@ import {
 
 export const maxDuration = 300; // 5 minute timeout for discovery
 
-// Re-export for backward compatibility
-export { discoveryProgressStore, discoveryResultsStore, type DiscoveryProgress };
-
 export interface DiscoverySession extends DiscoveryProgress {
   discoveredJobs: DiscoveredJob[];
 }

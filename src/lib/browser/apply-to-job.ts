@@ -3,8 +3,10 @@ import {
   takeScreenshot,
   isSessionNearTimeout,
   waitForNavigation,
+  getPage,
 } from "./browserbase-client";
 import type { AutoApplyProfile } from "@/types/user-profile";
+import { z } from "zod/v3";
 
 /**
  * Job Application Data
@@ -51,7 +53,7 @@ export function detectPlatform(
 }
 
 /**
- * Apply to a single job using AI-powered form filling
+ * Apply to a single job using AI-powered form filling (Stagehand v3)
  *
  * This is the main entry point for job applications.
  * It detects the platform and uses natural language commands
@@ -64,14 +66,15 @@ export async function applyToJob(
 ): Promise<ApplicationResult> {
   const startTime = Date.now();
   const { stagehand } = session;
+  const page = getPage(session);
 
   try {
     console.log(`[Apply] Starting application for ${job.title} at ${job.company}`);
 
     // Navigate to the job application page
-    await stagehand.page.goto(job.applyUrl, {
+    await page.goto(job.applyUrl, {
       waitUntil: "domcontentloaded",
-      timeout: 30000,
+      timeoutMs: 30000,
     });
     await waitForNavigation(session, 10000);
 
@@ -131,7 +134,7 @@ export async function applyToJob(
 }
 
 /**
- * Apply via Indeed
+ * Apply via Indeed (Stagehand v3)
  *
  * Indeed has a simpler application flow:
  * 1. Click "Apply now" button
@@ -146,17 +149,16 @@ async function applyViaIndeed(
   profile: AutoApplyProfile
 ): Promise<ApplicationResult> {
   const { stagehand } = session;
+  const page = getPage(session);
 
   try {
-    // Step 1: Click Apply button
-    await stagehand.act({
-      action: "Click the 'Apply now' or 'Apply on company site' button",
-    });
+    // Step 1: Click Apply button using Stagehand v3 act()
+    await stagehand.act("Click the 'Apply now' or 'Apply on company site' button");
 
-    await stagehand.page.waitForTimeout(2000);
+    await page.waitForLoadState("domcontentloaded");
 
     // Check if we're redirected to external site
-    const currentUrl = stagehand.page.url();
+    const currentUrl = page.url();
     if (!currentUrl.includes("indeed.com")) {
       return {
         success: false,
@@ -168,19 +170,12 @@ async function applyViaIndeed(
       };
     }
 
-    // Step 2: Fill contact information
-    await stagehand.act({
-      action: `If there's an email field that's empty, fill it with: ${profile.email}`,
-    });
-
-    await stagehand.act({
-      action: `If there's a phone number field that's empty, fill it with: ${profile.phone}`,
-    });
+    // Step 2: Fill contact information using Stagehand v3 act()
+    await stagehand.act(`If there's an email field that's empty, fill it with: ${profile.email}`);
+    await stagehand.act(`If there's a phone number field that's empty, fill it with: ${profile.phone}`);
 
     // Step 3: Handle resume upload
-    await stagehand.act({
-      action: "If there's a resume upload section, click to upload or use a previously uploaded resume",
-    });
+    await stagehand.act("If there's a resume upload section, click to upload or use a previously uploaded resume");
 
     // Step 4: Fill any additional required fields
     await fillCommonFields(session, profile);
@@ -189,11 +184,9 @@ async function applyViaIndeed(
     await handleScreeningQuestions(session, profile);
 
     // Step 6: Submit the application
-    await stagehand.act({
-      action: "Click the 'Submit your application' or 'Apply' or 'Continue' button to submit the application",
-    });
+    await stagehand.act("Click the 'Submit your application' or 'Apply' or 'Continue' button to submit the application");
 
-    await stagehand.page.waitForTimeout(3000);
+    await page.waitForLoadState("networkidle");
 
     // Check for confirmation
     const confirmationText = await detectConfirmation(session);
@@ -203,7 +196,7 @@ async function applyViaIndeed(
       jobId: job.id,
       platform: "indeed",
       method: "easy_apply",
-      confirmationText,
+      confirmationText: confirmationText || undefined,
       durationMs: 0,
     };
   } catch (error) {
@@ -218,7 +211,7 @@ async function applyViaIndeed(
 }
 
 /**
- * Apply via LinkedIn
+ * Apply via LinkedIn (Stagehand v3)
  *
  * LinkedIn Easy Apply flow:
  * 1. Click "Easy Apply" button
@@ -233,61 +226,45 @@ async function applyViaLinkedIn(
   profile: AutoApplyProfile
 ): Promise<ApplicationResult> {
   const { stagehand } = session;
+  const page = getPage(session);
 
   try {
-    // Step 1: Click Easy Apply button
-    const easyApplyClicked = await stagehand.act({
-      action: "Click the 'Easy Apply' button on the job posting",
-    });
+    // Step 1: Click Easy Apply button using Stagehand v3 act()
+    await stagehand.act("Click the 'Easy Apply' button on the job posting");
 
-    if (!easyApplyClicked) {
-      // Try regular Apply button
-      await stagehand.act({
-        action: "Click the 'Apply' button on the job posting",
-      });
+    await page.waitForLoadState("domcontentloaded");
 
-      // Check if redirected
-      await stagehand.page.waitForTimeout(2000);
-      const currentUrl = stagehand.page.url();
-      if (!currentUrl.includes("linkedin.com")) {
-        return {
-          success: false,
-          jobId: job.id,
-          platform: "linkedin",
-          method: "redirect",
-          error: "Redirected to external application site",
-          durationMs: 0,
-        };
-      }
+    // Check if redirected
+    const currentUrl = page.url();
+    if (!currentUrl.includes("linkedin.com")) {
+      return {
+        success: false,
+        jobId: job.id,
+        platform: "linkedin",
+        method: "redirect",
+        error: "Redirected to external application site",
+        durationMs: 0,
+      };
     }
 
-    await stagehand.page.waitForTimeout(2000);
-
-    // Step 2: Fill contact info
-    await stagehand.act({
-      action: `If there's a phone number field that's empty, fill it with: ${profile.phone}`,
-    });
-
-    await stagehand.act({
-      action: `If there's an email field that's empty, fill it with: ${profile.email}`,
-    });
+    // Step 2: Fill contact info using Stagehand v3 act()
+    await stagehand.act(`If there's a phone number field that's empty, fill it with: ${profile.phone}`);
+    await stagehand.act(`If there's an email field that's empty, fill it with: ${profile.email}`);
 
     // Step 3: Handle multi-step form
     let maxSteps = 10;
     let currentStep = 0;
 
     while (currentStep < maxSteps) {
-      // Check if we're on the final review/submit step
-      const pageContent = await stagehand.page.content();
+      // Check if we're on the final review/submit step using page.evaluate()
+      const pageContent = await page.evaluate(() => document.body.innerText);
       const isReviewStep =
         pageContent.includes("Review your application") ||
         pageContent.includes("Submit application");
 
       if (isReviewStep) {
-        // Submit the application
-        await stagehand.act({
-          action: "Click the 'Submit application' button",
-        });
+        // Submit the application using Stagehand v3 act()
+        await stagehand.act("Click the 'Submit application' button");
         break;
       }
 
@@ -295,24 +272,20 @@ async function applyViaLinkedIn(
       await fillCommonFields(session, profile);
       await handleScreeningQuestions(session, profile);
 
-      // Try to click Next/Continue
-      const nextClicked = await stagehand.act({
-        action: "Click the 'Next' or 'Continue' or 'Review' button to proceed to the next step",
-      });
-
-      if (!nextClicked) {
+      // Try to click Next/Continue using Stagehand v3 act()
+      try {
+        await stagehand.act("Click the 'Next' or 'Continue' or 'Review' button to proceed to the next step");
+      } catch {
         // No next button found, try submit
-        await stagehand.act({
-          action: "Click the 'Submit application' or 'Submit' button",
-        });
+        await stagehand.act("Click the 'Submit application' or 'Submit' button");
         break;
       }
 
-      await stagehand.page.waitForTimeout(1500);
+      await page.waitForLoadState("domcontentloaded");
       currentStep++;
     }
 
-    await stagehand.page.waitForTimeout(3000);
+    await page.waitForLoadState("networkidle");
 
     // Check for confirmation
     const confirmationText = await detectConfirmation(session);
@@ -337,7 +310,7 @@ async function applyViaLinkedIn(
 }
 
 /**
- * Apply via generic form (Greenhouse, Lever, or other ATS)
+ * Apply via generic form (Greenhouse, Lever, or other ATS) using Stagehand v3
  */
 async function applyViaGenericForm(
   session: BrowserSession,
@@ -346,49 +319,33 @@ async function applyViaGenericForm(
   platform: string
 ): Promise<ApplicationResult> {
   const { stagehand } = session;
+  const page = getPage(session);
 
   try {
-    // Fill all visible form fields
-    await stagehand.act({
-      action: `Fill the first name field with: ${profile.firstName}`,
-    });
-
-    await stagehand.act({
-      action: `Fill the last name field with: ${profile.lastName}`,
-    });
-
-    await stagehand.act({
-      action: `Fill the email field with: ${profile.email}`,
-    });
-
-    await stagehand.act({
-      action: `Fill the phone field with: ${profile.phone}`,
-    });
+    // Fill all visible form fields using Stagehand v3 act()
+    await stagehand.act(`Fill the first name field with: ${profile.firstName}`);
+    await stagehand.act(`Fill the last name field with: ${profile.lastName}`);
+    await stagehand.act(`Fill the email field with: ${profile.email}`);
+    await stagehand.act(`Fill the phone field with: ${profile.phone}`);
 
     // Handle resume upload
-    await stagehand.act({
-      action: "Click on the resume upload button or drag and drop area",
-    });
+    await stagehand.act("Click on the resume upload button or drag and drop area");
 
     // Fill additional common fields
     await fillCommonFields(session, profile);
 
     // Handle cover letter if available
     if (job.coverLetter) {
-      await stagehand.act({
-        action: `If there's a cover letter text area, fill it with: ${job.coverLetter.substring(0, 500)}...`,
-      });
+      await stagehand.act(`If there's a cover letter text area, fill it with: ${job.coverLetter.substring(0, 500)}...`);
     }
 
     // Handle any screening questions
     await handleScreeningQuestions(session, profile);
 
-    // Submit the application
-    await stagehand.act({
-      action: "Click the 'Submit Application' or 'Apply' or 'Submit' button",
-    });
+    // Submit the application using Stagehand v3 act()
+    await stagehand.act("Click the 'Submit Application' or 'Apply' or 'Submit' button");
 
-    await stagehand.page.waitForTimeout(3000);
+    await page.waitForLoadState("networkidle");
 
     const confirmationText = await detectConfirmation(session);
 
@@ -412,7 +369,7 @@ async function applyViaGenericForm(
 }
 
 /**
- * Fill common form fields that appear across platforms
+ * Fill common form fields that appear across platforms using Stagehand v3
  */
 async function fillCommonFields(
   session: BrowserSession,
@@ -420,47 +377,35 @@ async function fillCommonFields(
 ): Promise<void> {
   const { stagehand } = session;
 
-  // Location fields
+  // Location fields - use Stagehand v3 act()
   if (profile.city) {
-    await stagehand.act({
-      action: `If there's a city field that's empty, fill it with: ${profile.city}`,
-    });
+    await stagehand.act(`If there's a city field that's empty, fill it with: ${profile.city}`);
   }
 
   if (profile.state) {
-    await stagehand.act({
-      action: `If there's a state field that's empty, fill it with: ${profile.state}`,
-    });
+    await stagehand.act(`If there's a state field that's empty, fill it with: ${profile.state}`);
   }
 
   if (profile.zipCode) {
-    await stagehand.act({
-      action: `If there's a zip code or postal code field that's empty, fill it with: ${profile.zipCode}`,
-    });
+    await stagehand.act(`If there's a zip code or postal code field that's empty, fill it with: ${profile.zipCode}`);
   }
 
-  // Professional links
+  // Professional links - use Stagehand v3 act()
   if (profile.linkedinUrl) {
-    await stagehand.act({
-      action: `If there's a LinkedIn URL field that's empty, fill it with: ${profile.linkedinUrl}`,
-    });
+    await stagehand.act(`If there's a LinkedIn URL field that's empty, fill it with: ${profile.linkedinUrl}`);
   }
 
   if (profile.portfolioUrl) {
-    await stagehand.act({
-      action: `If there's a portfolio or website URL field that's empty, fill it with: ${profile.portfolioUrl}`,
-    });
+    await stagehand.act(`If there's a portfolio or website URL field that's empty, fill it with: ${profile.portfolioUrl}`);
   }
 
   if (profile.githubUrl) {
-    await stagehand.act({
-      action: `If there's a GitHub URL field that's empty, fill it with: ${profile.githubUrl}`,
-    });
+    await stagehand.act(`If there's a GitHub URL field that's empty, fill it with: ${profile.githubUrl}`);
   }
 }
 
 /**
- * Handle common screening questions
+ * Handle common screening questions using Stagehand v3
  */
 async function handleScreeningQuestions(
   session: BrowserSession,
@@ -468,17 +413,13 @@ async function handleScreeningQuestions(
 ): Promise<void> {
   const { stagehand } = session;
 
-  // Work authorization
+  // Work authorization - use Stagehand v3 act()
   if (profile.authorizedToWork) {
-    await stagehand.act({
-      action: `If there's a question about authorization to work in the US, select 'Yes'`,
-    });
+    await stagehand.act("If there's a question about authorization to work in the US, select 'Yes'");
   }
 
   // Sponsorship
-  await stagehand.act({
-    action: `If there's a question about requiring visa sponsorship, select '${profile.requiresSponsorship ? "Yes" : "No"}'`,
-  });
+  await stagehand.act(`If there's a question about requiring visa sponsorship, select '${profile.requiresSponsorship ? "Yes" : "No"}'`);
 
   // Start date / availability
   const startDateText =
@@ -490,76 +431,57 @@ async function handleScreeningQuestions(
           ? "in 1 month"
           : "flexible";
 
-  await stagehand.act({
-    action: `If there's a question about start date or availability, indicate: ${startDateText}`,
-  });
+  await stagehand.act(`If there's a question about start date or availability, indicate: ${startDateText}`);
 
   // Salary expectations
   if (profile.salaryExpectation) {
-    await stagehand.act({
-      action: `If there's a salary expectation field, enter: ${profile.salaryExpectation}`,
-    });
+    await stagehand.act(`If there's a salary expectation field, enter: ${profile.salaryExpectation}`);
   } else if (profile.salaryMin) {
-    await stagehand.act({
-      action: `If there's a salary expectation field, enter: ${profile.salaryMin}`,
-    });
+    await stagehand.act(`If there's a salary expectation field, enter: ${profile.salaryMin}`);
   }
 
   // Years of experience
   if (profile.yearsOfExperience) {
-    await stagehand.act({
-      action: `If there's a years of experience field, enter: ${profile.yearsOfExperience}`,
-    });
+    await stagehand.act(`If there's a years of experience field, enter: ${profile.yearsOfExperience}`);
   }
 
   // Handle yes/no questions by answering affirmatively when safe
-  await stagehand.act({
-    action: `For any unanswered yes/no questions about qualifications, select 'Yes' if it seems beneficial`,
-  });
+  await stagehand.act("For any unanswered yes/no questions about qualifications, select 'Yes' if it seems beneficial");
 
   // Handle required dropdowns by selecting the first reasonable option
-  await stagehand.act({
-    action: `For any required dropdown fields that are empty, select the first reasonable option`,
-  });
+  await stagehand.act("For any required dropdown fields that are empty, select the first reasonable option");
 }
 
 /**
- * Detect confirmation message after submission
+ * Detect confirmation message after submission using Stagehand v3 extract()
  */
 async function detectConfirmation(
   session: BrowserSession
 ): Promise<string | null> {
   const { stagehand } = session;
+  const page = getPage(session);
+
+  // Define schema for extraction using zod/v3
+  const ConfirmationSchema = z.object({
+    confirmationMessage: z.string().describe("The confirmation message text"),
+    isConfirmed: z.boolean().describe("Whether a confirmation was found"),
+  });
 
   try {
-    const result = await stagehand.extract({
-      instruction:
-        "Extract any confirmation message that indicates the application was submitted successfully. Look for text like 'Application submitted', 'Thank you for applying', 'Your application has been received', etc. Return null if no confirmation is found.",
-      schema: {
-        type: "object",
-        properties: {
-          confirmationMessage: {
-            type: "string",
-            description: "The confirmation message text",
-          },
-          isConfirmed: {
-            type: "boolean",
-            description: "Whether a confirmation was found",
-          },
-        },
-      },
-    });
+    // Use Stagehand v3 extract() with instruction and schema
+    const result = await stagehand.extract(
+      "Extract any confirmation message that indicates the application was submitted successfully. Look for text like 'Application submitted', 'Thank you for applying', 'Your application has been received', etc. Return isConfirmed as false if no confirmation is found.",
+      ConfirmationSchema
+    );
 
-    if (result && typeof result === "object" && "isConfirmed" in result) {
-      return result.isConfirmed
-        ? (result.confirmationMessage as string) || "Application submitted"
-        : null;
+    if (result && result.isConfirmed) {
+      return result.confirmationMessage || "Application submitted";
     }
 
     return null;
   } catch {
-    // If extraction fails, check page content manually
-    const pageText = await stagehand.page.textContent("body");
+    // If extraction fails, check page content manually using page.evaluate()
+    const pageText = await page.evaluate(() => document.body.innerText);
     const confirmationPatterns = [
       "application submitted",
       "thank you for applying",
